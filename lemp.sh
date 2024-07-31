@@ -165,15 +165,28 @@ echo "Kích hoạt mod_rpaf và khởi động lại Apache..."
 sudo a2enmod rpaf
 sudo systemctl reload apache2
 
-# Bước 14: Cài đặt certbot
+# Bước 14: Cài đặt Composer
+echo "Cài đặt Composer..."
+EXPECTED_CHECKSUM="$(php -r 'copy("https://composer.github.io/installer.sig", "php://stdout");')"
+php -r "copy('https://getcomposer.org/installer', 'composer-setup.php');"
+ACTUAL_CHECKSUM="$(php -r 'echo hash_file("sha384", "composer-setup.php");')"
+if [ "$EXPECTED_CHECKSUM" != "$ACTUAL_CHECKSUM" ]; then
+    echo 'ERROR: Invalid installer checksum' >&2
+    rm composer-setup.php
+    exit 1
+fi
+sudo php composer-setup.php --install-dir=/usr/local/bin --filename=composer
+rm composer-setup.php
+
+# Bước 15: Cài đặt certbot
 echo "Cài đặt certbot..."
 sudo snap install --classic certbot
 
-# Bước 15: Cài đặt pm2 qua npm
+# Bước 16: Cài đặt pm2 qua npm
 echo "Cài đặt pm2 qua npm..."
 sudo npm install -g pm2
 
-# Bước 16: Khởi động lại Apache, Nginx và PHP-FPM
+# Bước 17: Khởi động lại Apache, Nginx và PHP-FPM
 echo "Khởi động lại Apache, Nginx và PHP-FPM..."
 sudo systemctl restart apache2
 sudo systemctl restart nginx
