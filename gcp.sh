@@ -48,7 +48,7 @@ echo "Cloning repository into $TARGET_DIR_SOURCES..."
 clone_and_cd $TARGET_DIR_SOURCES $GIT_URL $CLONE_FOLDER
 
 # Xác định tên folder nếu chưa được đặt
-if [ -z "$CLONE_FOLDER" ]; then
+if [ -z "$CLONE_FOLDER" ];n then
   CLONE_FOLDER=$(basename $git_url .git)
 fi
 
