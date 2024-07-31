@@ -77,9 +77,6 @@ if [ "$create_nginx" = true ]; then
     echo "server {"
     echo "    listen [::]:80;"
     echo "    listen 80;"
-    if [ "$use_ssl" = true ]; then
-      echo "    listen 443 ssl;"
-    fi
     echo ""
     echo "    # Root Document"
     echo "    root $root;"
@@ -129,10 +126,6 @@ if [ "$create_nginx" = true ]; then
     echo "    location ~ /\.ht {"
     echo "        deny all;"
     echo "    }"
-    if [ "$use_ssl" = true ]; then
-      echo "    ssl_certificate /etc/letsencrypt/live/${domains[0]}/fullchain.pem;"
-      echo "    ssl_certificate_key /etc/letsencrypt/live/${domains[0]}/privkey.pem;"
-    fi
     echo "}"
   } > "$nginx_conf"
   ln -s "$nginx_conf" "/etc/nginx/sites-enabled/"
@@ -150,7 +143,7 @@ if [ "$create_apache" = true ]; then
     done
     echo "    DocumentRoot $root"
     echo "    <Directory $root>"
-    echo "        Options Indexes FollowSymLinks"
+    echo "        Options FollowSymLinks"
     echo "        AllowOverride All"
     echo "        Require all granted"
     echo "    </Directory>"
@@ -186,5 +179,3 @@ if [ "$use_ssl" = true ]; then
 fi
 
 echo "Configuration for Nginx and/or Apache2 created and enabled."
-
-
