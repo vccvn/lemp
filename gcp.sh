@@ -1,4 +1,20 @@
 #!/bin/bash
+# Định nghĩa các thư mục cần thiết
+TARGET_DIR_HTML="/var/www/html"
+TARGET_DIR_SOURCES="/var/www/sources"
+SHELL_DIR="/var/www/shell"
+
+# Kiểm tra và khởi tạo thư mục /var/www/sources nếu chưa tồn tại
+if [ ! -d "$TARGET_DIR_SOURCES" ]; then
+  echo "Creating directory $TARGET_DIR_SOURCES..."
+  mkdir -p $TARGET_DIR_SOURCES
+fi
+
+# Kiểm tra và khởi tạo thư mục /var/www/shell nếu chưa tồn tại
+if [ ! -d "$SHELL_DIR" ]; then
+  echo "Creating directory $SHELL_DIR..."
+  mkdir -p $SHELL_DIR
+fi
 
 # Kiểm tra nếu số lượng tham số ít hơn 1 thì thông báo và thoát
 if [ "$#" -lt 1 ]; then
@@ -19,10 +35,6 @@ elif [ "$3" == "--laravel" ]; then
   LARAVEL_FLAG=$3
 fi
 
-# Định nghĩa các thư mục cần thiết
-TARGET_DIR_HTML="/var/www/html"
-TARGET_DIR_SOURCES="/var/www/sources"
-SHELL_DIR="/var/www/shell"
 
 # Function để clone repository và cd vào thư mục
 clone_and_cd() {
@@ -48,7 +60,7 @@ echo "Cloning repository into $TARGET_DIR_SOURCES..."
 clone_and_cd $TARGET_DIR_SOURCES $GIT_URL $CLONE_FOLDER
 
 # Xác định tên folder nếu chưa được đặt
-if [ -z "$CLONE_FOLDER" ];n then
+if [ -z "$CLONE_FOLDER" ]; then
   CLONE_FOLDER=$(basename $git_url .git)
 fi
 
