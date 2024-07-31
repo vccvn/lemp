@@ -17,12 +17,12 @@ if [ ! -d "$SHELL_DIR" ]; then
   mkdir -p $SHELL_DIR
 fi
 
-# Kiểm tra nếu số lượng tham số ít hơn 1
+# Bước 3: Kiểm tra nếu số lượng tham số ít hơn 1
 if [ "$#" -lt 1 ]; then
-  # Yêu cầu nhập URL git
+  # Yêu cầu người dùng nhập Git URL
   read -p "Enter the Git URL: " GIT_URL
 
-  # Yêu cầu nhập tên thư mục hoặc để trống nếu muốn mặc định
+  # Yêu cầu người dùng nhập tên thư mục hoặc để trống nếu muốn mặc định
   read -p "Enter the folder name (leave empty for default): " CLONE_FOLDER
 
   # Hỏi người dùng có phải là project Laravel không
@@ -33,18 +33,24 @@ if [ "$#" -lt 1 ]; then
     LARAVEL_FLAG=""
   fi
 else
-  # Lấy tham số đầu vào
+  # Bước 4: Lấy tham số đầu vào nếu có
   GIT_URL=$1
   CLONE_FOLDER=$2
   LARAVEL_FLAG=$3
 fi
 
-# Nếu tham số thứ 2 là --laravel, đặt CLONE_FOLDER là rỗng và LARAVEL_FLAG là tham số thứ 2
+# Bước 5: Kiểm tra nếu tham số thứ 2 là --laravel, điều chỉnh CLONE_FOLDER và LARAVEL_FLAG
 if [ "$2" == "--laravel" ]; then
   CLONE_FOLDER=""
   LARAVEL_FLAG=$2
 elif [ "$3" == "--laravel" ]; then
   LARAVEL_FLAG=$3
+fi
+
+# Bước 6: Kiểm tra URL Git có hợp lệ không
+if [ -z "$GIT_URL" ]; then
+  echo "Invalid URL: The Git URL cannot be empty."
+  exit 1
 fi
 
 # Function để clone repository và cd vào thư mục
@@ -66,20 +72,20 @@ clone_and_cd() {
   cd $target_dir/$folder_name
 }
 
-# Thực hiện clone vào thư mục /var/www/sources
+# Bước 7: Thực hiện clone vào thư mục /var/www/sources
 echo "Cloning repository into $TARGET_DIR_SOURCES..."
 clone_and_cd $TARGET_DIR_SOURCES $GIT_URL $CLONE_FOLDER
 
-# Xác định tên folder nếu chưa được đặt
+# Bước 8: Xác định tên folder nếu chưa được đặt
 if [ -z "$CLONE_FOLDER" ]; then
   CLONE_FOLDER=$(basename $GIT_URL .git)
 fi
 
-# Copy project từ /var/www/sources sang /var/www/html
+# Bước 9: Copy project từ /var/www/sources sang /var/www/html
 echo "Copying project from $TARGET_DIR_SOURCES/$CLONE_FOLDER to $TARGET_DIR_HTML/$CLONE_FOLDER..."
 cp -r $TARGET_DIR_SOURCES/$CLONE_FOLDER $TARGET_DIR_HTML/
 
-# Tạo nội dung cho file bash mới
+# Bước 10: Tạo nội dung cho file bash mới
 SHELL_SCRIPT_CONTENT=$(cat <<EOF
 #!/bin/bash
 
@@ -109,7 +115,7 @@ echo "done"
 EOF
 )
 
-# Nếu là project Laravel, thêm các bước xử lý bổ sung vào nội dung script
+# Bước 11: Nếu là project Laravel, thêm các bước xử lý bổ sung vào nội dung script
 if [ "$LARAVEL_FLAG" == "--laravel" ]; then
   # Kiểm tra và cài đặt Composer nếu chưa tồn tại
   if ! command -v composer &> /dev/null; then
@@ -156,11 +162,12 @@ LARAVEL_EOF
   SHELL_SCRIPT_CONTENT="${SHELL_SCRIPT_CONTENT}${LARAVEL_STEPS}"
 fi
 
-# Tạo file bash mới trong thư mục /var/www/shell
+# Bước 12: Tạo file bash mới trong thư mục /var/www/shell
 echo "$SHELL_SCRIPT_CONTENT" > $SHELL_DIR/$CLONE_FOLDER.sh
 
-# Cấp quyền thực thi cho file bash
+# Bước 13: Cấp quyền thực thi cho file bash
 chmod +x $SHELL_DIR/$CLONE_FOLDER.sh
 
+# Kết thúc: Thông báo hoàn tất
 echo "Setup complete!"
 echo "Shell script created at $SHELL_DIR/$CLONE_FOLDER.sh"
