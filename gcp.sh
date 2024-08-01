@@ -85,6 +85,10 @@ fi
 echo "Copying project from $TARGET_DIR_SOURCES/$CLONE_FOLDER to $TARGET_DIR_HTML/$CLONE_FOLDER..."
 cp -r $TARGET_DIR_SOURCES/$CLONE_FOLDER $TARGET_DIR_HTML/
 
+
+cd /var/www/html/$CLONE_FOLDER/
+
+
 # Bước 10: Tạo nội dung cho file bash mới
 SHELL_SCRIPT_CONTENT=$(cat <<EOF
 #!/bin/bash
@@ -100,13 +104,7 @@ git pull
 echo "Copying /var/www/sources/$CLONE_FOLDER/ to /var/www/html/$CLONE_FOLDER/ ..."
 
 cp -r /var/www/sources/$CLONE_FOLDER/* /var/www/html/$CLONE_FOLDER/
-cd /var/www/html/$CLONE_FOLDER/
 
-echo "cd /var/www/html/$CLONE_FOLDER/"
-echo "sudo chown -Rf www-data:www-data themes storage public/static/contents public/static/assets resources/views/themes"
-
-# Thay đổi quyền sở hữu của các thư mục cần thiết cho www-data
-sudo chown -Rf www-data:www-data themes storage public/static/contents public/static/assets resources/views/themes
 # pm2 stop api-server.js
 # composer update gomee/*
 # php artisan migrate
@@ -133,30 +131,44 @@ if [ "$LARAVEL_FLAG" == "--laravel" ]; then
   else
     echo "Composer is already installed."
   fi
+  echo "cd /var/www/html/$CLONE_FOLDER/"
+  cd /var/www/html/$CLONE_FOLDER/
+
+  echo "Checking for .env file"
+  if [ ! -f ".env" ]; then
+    if [ -f ".env.example" ]; then
+      cp .env.example .env
+      echo "Copied .env.example to .env"
+    elif [ -f ".env.development" ]; then
+      cp .env.development .env
+      echo "Copied .env.development to .env"
+    elif [ -f ".env.production" ]; then
+      cp .env.production .env
+      echo "Copied .env.production to .env"
+    else
+      echo "No suitable .env file found"
+    fi
+  fi
+
+
+  echo "sudo chown -Rf www-data:www-data themes storage public/static/contents public/static/assets resources/views/themes"
+  sudo chown -Rf www-data:www-data themes storage public/static/contents public/static/assets resources/views/themes
+
+  echo "Running composer install"
+  composer install
+
+
 
   LARAVEL_STEPS=$(cat <<'LARAVEL_EOF'
 
-echo "Checking for .env file"
-if [ ! -f ".env" ]; then
-  if [ -f ".env.example" ]; then
-    cp .env.example .env
-    echo "Copied .env.example to .env"
-  elif [ -f ".env.development" ]; then
-    cp .env.development .env
-    echo "Copied .env.development to .env"
-  elif [ -f ".env.production" ]; then
-    cp .env.production .env
-    echo "Copied .env.production to .env"
-  else
-    echo "No suitable .env file found"
-  fi
-fi
+cd /var/www/html/$CLONE_FOLDER/
 
-echo "Running composer install"
-composer install
+echo "cd /var/www/html/$CLONE_FOLDER/"
+echo "sudo chown -Rf www-data:www-data themes storage public/static/contents public/static/assets resources/views/themes"
 
 # Thay đổi quyền sở hữu của các thư mục cần thiết cho www-data
 sudo chown -Rf www-data:www-data themes storage public/static/contents public/static/assets resources/views/themes
+
 LARAVEL_EOF
 )
   SHELL_SCRIPT_CONTENT="${SHELL_SCRIPT_CONTENT}${LARAVEL_STEPS}"
