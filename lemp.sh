@@ -71,6 +71,7 @@ EOF'
 
 # Bước 9: Tải lại cấu hình Apache
 echo "Tải lại cấu hình Apache..."
+sudo a2enmod rewrite
 sudo systemctl reload apache2
 
 # Bước 10: Cấu hình Nginx
