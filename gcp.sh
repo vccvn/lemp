@@ -159,7 +159,7 @@ if [ "$LARAVEL_FLAG" == "--laravel" ]; then
 
 
 
-  LARAVEL_STEPS=$(cat <<'LARAVEL_EOF'
+  LARAVEL_STEPS=$(cat <<LARAVEL_EOF
 
 cd /var/www/html/$CLONE_FOLDER/
 
